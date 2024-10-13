@@ -1,0 +1,95 @@
+name: cfn-publish-stable
+on:
+  push:
+    tags:
+      - 'v*'
+env:
+  BSS_FILE_ASSET_BUCKET_NAME: 'supabase-on-aws-${AWS::Region}'
+  BSS_FILE_ASSET_REGION_SET: us-east-1,us-west-2,eu-west-1,ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-southeast-1,ap-southeast-2,ap-south-1
+
+jobs:
+  stable:
+    name: Stable CFn templates
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get the version tag
+        run: echo "TAG=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: node.js setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: yarn install --check-files
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.CDK_PUBLISHING_ROLE }}
+          aws-region: us-west-2
+
+      - name: cdk synth
+        run: npx projen synth --name Supabase --no-version-reporting
+        env:
+          BSS_FILE_ASSET_PREFIX: stable/
+
+      - name: remove old template
+        run: |
+          region_list=(${BSS_FILE_ASSET_REGION_SET//,/ })
+          for region in ${region_list[@]}; do
+              bucket_name=(${BSS_FILE_ASSET_BUCKET_NAME//\$\{AWS::Region\}/$region})
+              aws s3 rm s3://$bucket_name/stable/Supabase.template.json
+          done
+
+      - name: Publish assets
+        run: npx cdk-assets publish --path cdk.out/Supabase.assets.json --verbose
+
+  version:
+    name: Versioning CFn templates
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get the version tag
+        run: echo "TAG=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: node.js setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: yarn install --check-files
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.CDK_PUBLISHING_ROLE }}
+          aws-region: us-west-2
+
+      - name: cdk synth
+        run: npx projen synth --name Supabase --no-version-reporting
+        env:
+          BSS_FILE_ASSET_PREFIX: ${{ env.TAG }}/
+
+      - name: remove old template
+        run: |
+          region_list=(${BSS_FILE_ASSET_REGION_SET//,/ })
+          for region in ${region_list[@]}; do
+              bucket_name=(${BSS_FILE_ASSET_BUCKET_NAME//\$\{AWS::Region\}/$region})
+              aws s3 rm s3://$bucket_name/${{ env.TAG }}/Supabase.template.json
+          done
+
+      - name: Publish assets
+        run: npx cdk-assets publish --path cdk.out/Supabase.assets.json --verbose
