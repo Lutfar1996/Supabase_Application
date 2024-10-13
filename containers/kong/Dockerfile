@@ -1,5 +1,5 @@
 FROM public.ecr.aws/docker/library/kong:3.5.0 AS build
-
+##
 ARG TARGETPLATFORM
 ENV ENVSUBST_VERSION=v1.4.2
 
