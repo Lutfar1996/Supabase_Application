@@ -6,7 +6,7 @@ on:
   workflow_dispatch: {}
 
 env:
-  ECR_PUBLIC_ALIAS: u3p7q2r8
+  ECR_PUBLIC_ALIAS: k7m2z4k7
 
 jobs:
   kong:
