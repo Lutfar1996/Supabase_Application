@@ -15,7 +15,7 @@ jobs:
     name: Latest Cfn templates
     runs-on: ubuntu-latest
     permissions:
-      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+      id-token: write # needed to interact with GitHub's OIDC Token endpointt.
       contents: read
     steps:
       - name: Checkout
