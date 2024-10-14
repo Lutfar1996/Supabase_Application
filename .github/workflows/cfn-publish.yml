@@ -42,7 +42,7 @@ jobs:
         if: env.GIT_DIFF
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.CDK_PUBLISHING_ROLE }}
+          role-to-assume: arn:aws:iam::390402542649:role/CDK_PUBLISHING_ROLE
           aws-region: us-west-2
 
       - name: cdk synth
