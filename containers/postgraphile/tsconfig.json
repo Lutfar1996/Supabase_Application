@@ -11,10 +11,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "pg": [
-        "./src/pg.ts"
-      ]
-    },
+      "pg": ["pg.ts"]
+    }
   },
   "include": ["src", "test"]
 }
