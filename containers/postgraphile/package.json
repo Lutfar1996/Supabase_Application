@@ -26,6 +26,6 @@
   },
   "_moduleAliases": {
     "@root": ".",
-    "pg": "pg.js"
+    "pg": "src/pg.js"
   }
 }
