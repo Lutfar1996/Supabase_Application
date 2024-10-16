@@ -8,7 +8,7 @@ COPY tsconfig.json ./
 COPY ./src ./src
 RUN npm run build
 
-# Second stage: Install production dependencies
+# Second stage: Install production dependenciess
 FROM public.ecr.aws/docker/library/node:18-alpine AS module
 
 WORKDIR /postgraphile/
